@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Productivity Git Tool</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="node_modules/monaco-editor/min/vs/editor/editor.main.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Developer Productivity Git Tool</h1>
+    
+    <div class="main-content">
+      <div class="left-panel">
+        <div class="section">
+          <h2>JSON Configuration</h2>
+          <div id="jsonEditor" class="editor"></div>
+          <div id="jsonValidation" class="validation-message"></div>
+        </div>
+
+        <div class="section">
+          <h2>Directory Settings</h2>
+          <div class="form-group">
+            <label for="gitProjectDir">Git Project Directory:</label>
+            <div class="input-with-button">
+              <input type="text" id="gitProjectDir" readonly>
+              <button id="selectGitDir">Select Folder</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="templateDir">Template Directory:</label>
+            <div class="input-with-button">
+              <input type="text" id="templateDir" readonly>
+              <button id="selectTemplateDir">Select Folder</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="outputDir">Output Directory:</label>
+            <div class="input-with-button">
+              <input type="text" id="outputDir" readonly>
+              <button id="selectOutputDir">Select Folder</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2>Git Settings</h2>
+          <div class="form-group">
+            <label for="currentBranch">Current Branch:</label>
+            <input type="text" id="currentBranch" placeholder="e.g., main">
+          </div>
+          
+          <div class="form-group">
+            <label for="newBranch">New Branch Name:</label>
+            <input type="text" id="newBranch" placeholder="e.g., feature/new-component">
+          </div>
+          
+          <div class="form-group">
+            <label for="commitMessage">Commit Message:</label>
+            <input type="text" id="commitMessage" placeholder="e.g., Add new component">
+          </div>
+          
+          <div class="form-group">
+            <label for="prTargetBranch">PR Target Branch:</label>
+            <input type="text" id="prTargetBranch" value="development" placeholder="e.g., development">
+          </div>
+          
+          <div class="info-box">
+            <strong>Note:</strong> PR creation requires GitHub CLI. 
+            <a href="https://cli.github.com/" target="_blank">Install it here</a> 
+            and run <code>gh auth login</code> after installation.
+            After installing, restart your computer for PATH to update.
+          </div>
+        </div>
+        
+        <div class="section actions">
+          <button id="generateBtn" class="primary-btn">Generate & Create PR</button>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+        <h2>Terminal Output</h2>
+        <div id="terminal" class="terminal"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monaco Editor Load -->
+  <script>
+    // Set up Monaco environment
+    var require = { paths: { 'vs': './node_modules/monaco-editor/min/vs' } };
+  </script>
+  <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+  <script src="./node_modules/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+  <script src="./node_modules/monaco-editor/min/vs/editor/editor.main.js"></script>
+  
+  <!-- Main Application Logic -->
+  <script src="renderer.js"></script>
+</body>
+</html>

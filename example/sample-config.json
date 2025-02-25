@@ -1,0 +1,26 @@
+{
+  "projectName": "Amazing Project",
+  "projectDescription": "A fantastic project that does amazing things",
+  "packageName": "amazing-project",
+  "packageVariable": "amazingProject",
+  "environment": "production",
+  "debug": false,
+  "apiKey": "abcd1234-sample-key",
+  "endpoints": {
+    "main": "https://api.example.com/v1",
+    "backup": "https://backup-api.example.com/v1"
+  },
+  "features": {
+    "enableLogging": true,
+    "enableCaching": true,
+    "maxCacheSize": 100
+  },
+  "componentName": "DataProcessor",
+  "componentType": "Service",
+  "componentDescription": "Service for processing data streams",
+  "initializeCode": "this.cache = new Map();",
+  "version": "1.0.0",
+  "keywords": "\"data-processing\", \"service\", \"node\"",
+  "author": "Your Name",
+  "license": "MIT"
+}
