@@ -146,3 +146,24 @@ button:hover {
   border-radius: 4px;
   font-size: 14px;
 }
+
+/* Open PR button */
+.open-pr-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.open-pr-btn:hover {
+  background-color: #27ae60;
+}
+
+.open-pr-btn:active {
+  background-color: #219653;
+}

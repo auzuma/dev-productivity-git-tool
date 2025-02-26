@@ -1,12 +1,13 @@
 # Developer Productivity Git Tool
 
-A cross-platform desktop application to automate Git workflows with template-based file generation and PR creation.
+A cross-platform desktop application to automate Git workflows with template-based file generation and PR preparation.
 
 ## Features
 
 - JSON editor with syntax highlighting and validation
 - Process template files, replacing placeholders with values from your JSON
-- Automatic Git operations (checkout, branch creation, commits, and PR creation)
+- Automatic Git operations (checkout, branch creation, commits)
+- Prepares Pull Request URLs that open directly in your browser
 - Cross-platform support (Windows, macOS, Linux)
 
 ## Getting Started
@@ -15,7 +16,6 @@ A cross-platform desktop application to automate Git workflows with template-bas
 
 - [Node.js](https://nodejs.org/) (v14 or higher)
 - [Git](https://git-scm.com/)
-- [GitHub CLI](https://cli.github.com/) (optional, for PR creation)
 
 ### Installation
 
@@ -52,9 +52,22 @@ A cross-platform desktop application to automate Git workflows with template-bas
    - **Commit Message**: Message for the commit
    - **PR Target Branch**: Branch to target for the Pull Request (defaults to 'development')
 
-4. **Generate & Create PR**:
+4. **Generate & Prepare PR**:
    - Click the button to start the process
    - Monitor progress in the terminal output panel
+   - When complete, a PR URL will be generated with an "Open Pull Request" button
+   - Click the button when you're ready to open the PR in your browser
+
+## Pull Request Workflow
+
+The application follows a workflow similar to GitHub Desktop:
+
+1. Changes are prepared locally (checkout, branch creation, file processing, commit, push)
+2. A Pull Request URL is generated that points to GitHub's PR creation page
+3. When you're ready, click the "Open Pull Request" button to open your browser
+4. Review your changes on GitHub and complete the PR creation process
+
+This approach gives you control over when to create the PR and allows you to make any final adjustments on GitHub.
 
 ## Template Format
 
@@ -87,8 +100,9 @@ Files with names starting with `file_` can have placeholders in their names that
 
 ## Troubleshooting
 
-- **PR Creation Failed**: Make sure GitHub CLI is installed and authenticated. You can run `gh auth login` in your terminal to set it up.
 - **Git Errors**: Check that your Git directory is correctly configured and that you have the necessary permissions.
+- **PR URL Generation Failed**: Ensure your repository has a valid remote URL pointing to GitHub.
 
 ## License
 
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

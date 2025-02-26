@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs-extra');
 const simpleGit = require('simple-git');
@@ -61,6 +61,17 @@ ipcMain.handle('select-directory', async (event, title) => {
   }
 });
 
+// Handle opening URLs in the default browser
+ipcMain.handle('open-url', async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    return { success: true };
+  } catch (error) {
+    console.error('Error opening URL:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Handle template processing and Git operations
 ipcMain.handle('process-templates', async (event, config) => {
   try {
@@ -110,7 +121,7 @@ ipcMain.handle('process-templates', async (event, config) => {
     await git.push(newBranch, 'origin', ['--set-upstream']);
     
     // 5. Create PR
-    addLog(`Creating Pull Request to ${prTargetBranch}...`);
+    addLog(`Preparing Pull Request from ${newBranch} to ${prTargetBranch}...`);
     
     const prCreator = new PRCreator(addLog);
     const prResult = await prCreator.createPR({
@@ -122,13 +133,13 @@ ipcMain.handle('process-templates', async (event, config) => {
     });
     
     if (prResult.success) {
-      addLog('Pull Request created successfully!');
+      addLog('Pull Request URL prepared successfully!');
       if (prResult.url) {
         addLog(`PR URL: ${prResult.url}`);
+        addLog('Click the "Open Pull Request" button to open this URL in your browser when ready.');
       }
     } else {
-      addLog('Failed to create PR using GitHub CLI. Make sure gh is installed and authenticated.');
-      addLog('You can create the PR manually on GitHub.');
+      addLog('Failed to prepare PR URL.');
       addLog(`Error details: ${prResult.error}`);
     }
     

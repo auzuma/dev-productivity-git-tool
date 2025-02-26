@@ -17,21 +17,41 @@ class PRCreator {
   }
   
   /**
-   * Check if GitHub CLI is installed and available
+   * Get repository details from a local Git repository
+   * Extracts owner and repo name from the remote URL
    * 
-   * @returns {Promise<boolean>} - True if GitHub CLI is available
+   * @param {string} repoDir - Local repository directory
+   * @returns {Promise<Object>} - Repository details (owner, repo)
    */
-  async isGitHubCLIAvailable() {
+  async getRepoDetails(repoDir) {
     try {
-      await execPromise('gh --version');
-      return true;
+      const { stdout } = await execPromise('git remote get-url origin', { cwd: repoDir });
+      const remoteUrl = stdout.trim();
+      
+      // Parse various GitHub URL formats
+      let match;
+      
+      // HTTPS: https://github.com/owner/repo.git
+      if (remoteUrl.includes('github.com')) {
+        match = remoteUrl.match(/github\.com[\/:]([^\/]+)\/([^\/\.]+)(?:\.git)?$/);
+      }
+      
+      if (match && match.length >= 3) {
+        return {
+          owner: match[1],
+          repo: match[2]
+        };
+      }
+      
+      return null;
     } catch (error) {
-      return false;
+      this.logger(`Failed to get repository details: ${error.message}`);
+      return null;
     }
   }
   
   /**
-   * Create a Pull Request using GitHub CLI
+   * Prepare PR information and construct the URL
    * 
    * @param {Object} options - PR options
    * @param {string} options.repoDir - Local repository directory
@@ -41,50 +61,42 @@ class PRCreator {
    * @param {string} options.body - PR description
    * @returns {Promise<Object>} - PR information including URL
    */
-  async createPRWithCLI(options) {
+  async preparePR(options) {
     const { repoDir, head, base, title, body } = options;
     
-    this.logger(`Creating PR from ${head} to ${base} using GitHub CLI`);
-    
-    // First check if GitHub CLI is available
-    const isGHAvailable = await this.isGitHubCLIAvailable();
-    if (!isGHAvailable) {
-      this.logger('GitHub CLI (gh) is not available in the current PATH.');
-      this.logger('You have the following options:');
-      this.logger('1. Install GitHub CLI: winget install --id GitHub.cli');
-      this.logger('2. Restart your computer after installation to update PATH');
-      this.logger('3. After restarting, run "gh auth login" to authenticate');
-      this.logger('For now, you can create a PR manually on GitHub.');
-      
-      return {
-        success: false,
-        error: 'GitHub CLI not available in PATH. See instructions above.'
-      };
-    }
+    this.logger(`Preparing PR from ${head} to ${base}`);
     
     try {
-      // Create the PR
-      const command = `gh pr create --base ${base} --head ${head} --title "${title}" --body "${body}"`;
-      const { stdout, stderr } = await execPromise(command, { cwd: repoDir });
+      // Get repository details
+      const repoDetails = await this.getRepoDetails(repoDir);
       
-      // Extract PR URL from stdout
-      const prUrl = stdout.trim();
-      this.logger(`Successfully created PR: ${prUrl}`);
+      if (!repoDetails) {
+        this.logger('Could not determine repository owner and name from remote URL.');
+        return {
+          success: false,
+          error: 'Could not determine repository details'
+        };
+      }
+      
+      const { owner, repo } = repoDetails;
+      
+      // Construct the PR URL
+      // This URL will take the user to the GitHub UI to create a PR with the specified branches
+      const prUrl = `https://github.com/${owner}/${repo}/compare/${base}...${head}?expand=1`;
+      
+      this.logger(`PR URL prepared: ${prUrl}`);
+      this.logger('Note: This URL will take you to GitHub where you can review and create the PR.');
       
       return {
         success: true,
         url: prUrl,
-        output: stdout
+        owner,
+        repo,
+        head,
+        base
       };
     } catch (error) {
-      this.logger(`Failed to create PR with GitHub CLI: ${error.message}`);
-      
-      // Check if this is an auth error
-      if (error.message.includes('auth') || error.message.includes('login')) {
-        this.logger('GitHub CLI is installed but not authenticated.');
-        this.logger('Please run "gh auth login" in a terminal and follow the prompts.');
-      }
-      
+      this.logger(`Failed to prepare PR: ${error.message}`);
       return {
         success: false,
         error: error.message
@@ -176,96 +188,15 @@ class PRCreator {
   }
   
   /**
-   * Get repository details from a local Git repository
-   * Extracts owner and repo name from the remote URL
+   * Prepare PR information and construct the URL
    * 
-   * @param {string} repoDir - Local repository directory
-   * @returns {Promise<Object>} - Repository details (owner, repo)
-   */
-  async getRepoDetails(repoDir) {
-    try {
-      const { stdout } = await execPromise('git remote get-url origin', { cwd: repoDir });
-      const remoteUrl = stdout.trim();
-      
-      // Parse various GitHub URL formats
-      let match;
-      
-      // HTTPS: https://github.com/owner/repo.git
-      if (remoteUrl.includes('github.com')) {
-        match = remoteUrl.match(/github\.com[\/:]([^\/]+)\/([^\/\.]+)(?:\.git)?$/);
-      }
-      
-      if (match && match.length >= 3) {
-        return {
-          owner: match[1],
-          repo: match[2]
-        };
-      }
-      
-      return null;
-    } catch (error) {
-      this.logger(`Failed to get repository details: ${error.message}`);
-      return null;
-    }
-  }
-  
-  /**
-   * Try to create a PR using GitHub CLI first, then fall back to API if needed
-   * 
-   * @param {Object} options - Combined options for both methods
+   * @param {Object} options - PR options
    * @returns {Promise<Object>} - PR information
    */
   async createPR(options) {
-    // Try GitHub CLI first
-    const cliResult = await this.createPRWithCLI({
+    // We're now just preparing the PR URL, not creating it with gh
+    return await this.preparePR({
       repoDir: options.repoDir,
-      head: options.head,
-      base: options.base,
-      title: options.title,
-      body: options.body
-    });
-    
-    if (cliResult.success) {
-      return cliResult;
-    }
-    
-    // If CLI failed but we're not set up for API, just return the CLI error with helpful instructions
-    if (!options.token) {
-      this.logger('\nAlternative: Use GitHub web interface to create PR manually');
-      this.logger(`1. Visit GitHub repository in your browser`);
-      this.logger(`2. Click "Pull requests" tab`);
-      this.logger(`3. Click "New pull request" button`);
-      this.logger(`4. Select base branch: ${options.base}`);
-      this.logger(`5. Select compare branch: ${options.head}`);
-      this.logger(`6. Fill in the title and description and create the PR`);
-      
-      return {
-        success: false,
-        manualInstructions: true,
-        error: cliResult.error
-      };
-    }
-    
-    this.logger('Falling back to GitHub API for PR creation');
-    
-    // If CLI fails and we have API options, try API
-    // First check if we need to extract owner/repo info
-    if (!options.owner || !options.repo) {
-      const repoDetails = await this.getRepoDetails(options.repoDir);
-      if (repoDetails) {
-        options.owner = repoDetails.owner;
-        options.repo = repoDetails.repo;
-      } else {
-        this.logger('Cannot determine repository owner/name for API fallback.');
-        return cliResult;
-      }
-    }
-    
-    // Now try the API
-    return await this.createPRWithAPI({
-      token: options.token,
-      owner: options.owner,
-      repo: options.repo,
       head: options.head,
       base: options.base,
       title: options.title,

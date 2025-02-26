@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Template processing and Git operations
   processTemplates: (config) => ipcRenderer.invoke('process-templates', config),
   
+  // Open URL in default browser
+  openUrl: (url) => ipcRenderer.invoke('open-url', url),
+  
   // Log listener
   onLogMessage: (callback) => {
     ipcRenderer.on('log-message', (event, message) => callback(message));

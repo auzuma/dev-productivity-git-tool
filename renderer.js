@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   let jsonEditor;
   let isJsonValid = false;
+  let prUrl = null; // Store the PR URL when it's created
   
   // Initialize Monaco Editor
   require(['vs/editor/editor.main'], function() {
@@ -123,12 +124,63 @@ document.addEventListener('DOMContentLoaded', () => {
   window.electronAPI.onLogMessage((message) => {
     const terminal = document.getElementById('terminal');
     const logLine = document.createElement('div');
+    
+    // Check if this message contains a PR URL
+    if (message.includes('PR URL:')) {
+      // Extract the URL from the message
+      const urlMatch = message.match(/PR URL: (https:\/\/[^\s]+)/);
+      if (urlMatch && urlMatch[1]) {
+        prUrl = urlMatch[1];
+        
+        // Create a button to open the PR
+        const openPrButton = document.createElement('button');
+        openPrButton.textContent = 'Open Pull Request';
+        openPrButton.className = 'open-pr-btn';
+        openPrButton.onclick = openPullRequest;
+        
+        // Add the button after the URL message
+        logLine.innerHTML = message.replace(
+          urlMatch[0], 
+          `${urlMatch[0]} `
+        );
+        logLine.appendChild(openPrButton);
+        terminal.appendChild(logLine);
+        return;
+      }
+    }
+    
+    // Regular log message
     logLine.textContent = message;
     terminal.appendChild(logLine);
     
     // Auto-scroll to bottom
     terminal.scrollTop = terminal.scrollHeight;
   });
+  
+  // Function to open the PR URL in the default browser
+  function openPullRequest() {
+    if (prUrl) {
+      window.electronAPI.openUrl(prUrl)
+        .then(result => {
+          if (!result.success) {
+            console.error('Failed to open PR URL:', result.error);
+            const terminal = document.getElementById('terminal');
+            const errorLine = document.createElement('div');
+            errorLine.textContent = `Error opening URL: ${result.error}`;
+            errorLine.style.color = '#e74c3c';
+            terminal.appendChild(errorLine);
+          }
+        })
+        .catch(error => {
+          console.error('Error opening PR URL:', error);
+          const terminal = document.getElementById('terminal');
+          const errorLine = document.createElement('div');
+          errorLine.textContent = `Error opening URL: ${error.message || 'Unknown error'}`;
+          errorLine.style.color = '#e74c3c';
+          terminal.appendChild(errorLine);
+        });
+    }
+  }
   
   // Generate and Create PR button
   document.getElementById('generateBtn').addEventListener('click', async () => {
