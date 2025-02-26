@@ -22,6 +22,19 @@ async function processTemplates(templateDir, outputDir, jsonConfig, logger, enab
   
   logger(`Found ${files.length} files to process`);
   
+  // Extract file renaming rules if enabled
+  let renameRules = [];
+  if (enableFileRenaming) {
+    renameRules = Object.entries(jsonConfig)
+      .filter(([key]) => key.startsWith('$$FILE_'))
+      .map(([key, value]) => ({
+        pattern: key.replace('$$FILE_', ''),
+        replacement: value
+      }));
+      
+    logger(`Found ${renameRules.length} file renaming rules`);
+  }
+  
   for (const file of files) {
     const sourcePath = path.join(templateDir, file);
     
@@ -40,9 +53,13 @@ async function processTemplates(templateDir, outputDir, jsonConfig, logger, enab
     // Process file name for any placeholders
     let targetFileName = file;
     
-    // Check if this is a file with placeholders in the name
-    if (path.basename(file).startsWith('file_')) {
-      targetFileName = processPlaceholders(targetFileName, jsonConfig);
+    // Apply file renaming rules if enabled
+    if (enableFileRenaming && renameRules.length > 0) {
+      const newPath = applyFileRenaming(sourcePath, renameRules, templateDir);
+      if (newPath !== sourcePath) {
+        targetFileName = path.relative(templateDir, newPath);
+        logger(`File renamed: ${file} → ${targetFileName}`);
+      }
     }
     
     const targetPath = path.join(outputDir, targetFileName);
@@ -66,12 +83,6 @@ async function processTemplates(templateDir, outputDir, jsonConfig, logger, enab
   }
   
   logger('Template processing complete');
-  
-  // If file renaming is enabled, apply the renaming rules
-  if (enableFileRenaming) {
-    logger('Applying file renaming rules from JSON configuration...');
-    await renameFilesInDirectory(outputDir, jsonConfig, logger);
-  }
 }
 
 /**
@@ -137,8 +148,10 @@ function applyFileRenaming(filePath, rules, baseDir) {
   
   // Apply each rule to the filename
   for (const rule of rules) {
-    if (fileName.includes(rule.pattern)) {
-      fileName = fileName.replace(rule.pattern, rule.replacement);
+    // Exact match for filename instead of just includes
+    if (fileName === rule.pattern) {
+      fileName = rule.replacement;
+      break; // Stop after first match to prevent multiple rules applying
     }
   }
   

@@ -1,0 +1,14 @@
+{
+  "environment": "production",
+  "debug": false,
+  "apiKey": "abcd1234-sample-key",
+  "endpoints": {
+    "main": "{{ endpoints.main }}",
+    "backup": "{{ endpoints.backup }}"
+  },
+  "features": {
+    "enableLogging": {{ features.enableLogging }},
+    "enableCaching": {{ features.enableCaching }},
+    "maxCacheSize": {{ features.maxCacheSize }}
+  }
+}

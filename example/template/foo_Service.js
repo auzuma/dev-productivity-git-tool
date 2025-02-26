@@ -19,7 +19,7 @@ class {{ componentName }}{{ componentType }} {
     return {
       processed: true,
       result: data.map(item => ({ ...item, processed: true })),
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     };
   }
 }
