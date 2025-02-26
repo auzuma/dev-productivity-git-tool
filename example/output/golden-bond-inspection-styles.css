@@ -1,0 +1,19 @@
+.template-container {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+  background-color: #f9f9f9;
+}
+
+.template-content {
+  margin-top: 12px;
+}
+
+.template-item {
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 2px;
+}

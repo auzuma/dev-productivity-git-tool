@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const simpleGit = require('simple-git');
 
 // Import utility modules
-const { processTemplates } = require('./utils/templateParser');
+const { processTemplates, renameFilesInDirectory } = require('./utils/templateParser');
 const GitCommands = require('./utils/gitCommands');
 const PRCreator = require('./utils/prCreation');
 
@@ -83,6 +83,7 @@ ipcMain.handle('process-templates', async (event, config) => {
       newBranch, 
       commitMessage, 
       prTargetBranch, 
+      enableFileRenaming,
       jsonConfig 
     } = config;
     
@@ -109,6 +110,14 @@ ipcMain.handle('process-templates', async (event, config) => {
     // 3. Process templates
     addLog('Processing templates...');
     await processTemplates(templateDir, outputDir, JSON.parse(jsonConfig), addLog);
+    
+    // 3.5 Rename files in output directory based on JSON config if enabled
+    if (enableFileRenaming) {
+      addLog('Checking for file renaming rules...');
+      await renameFilesInDirectory(outputDir, JSON.parse(jsonConfig), addLog);
+    } else {
+      addLog('File renaming is disabled. Skipping file renaming step.');
+    }
     
     // 4. Git operations - add, commit, push
     addLog('Staging changes...');

@@ -1,0 +1,2 @@
+This is a file that doesn't match any of the renaming patterns.
+It should remain unchanged after processing.

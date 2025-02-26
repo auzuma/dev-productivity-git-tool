@@ -201,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
       newBranch: document.getElementById('newBranch').value,
       commitMessage: document.getElementById('commitMessage').value,
       prTargetBranch: document.getElementById('prTargetBranch').value,
+      enableFileRenaming: document.getElementById('enableFileRenaming').checked,
       jsonConfig: jsonEditor.getValue()
     };
     

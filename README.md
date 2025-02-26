@@ -98,6 +98,28 @@ Files with names starting with `file_` can have placeholders in their names that
 - JSON: `{ "month": "January" }`
 - Output file: `file_report_January.md`
 
+### File Renaming
+
+The tool supports renaming files based on patterns specified in the JSON configuration. Any key in your JSON that starts with `$$FILE_` will be used as a pattern to rename files in the output directory.
+
+For example, if your JSON contains:
+```json
+{
+  "$$FILE_TEMPLATE_MAPPER.ts": "EsiToJaasGoldenBondInspectionMapper.ts",
+  "$$FILE_TEMPLATE_MAPPER_TEST.ts": "EsiToJaasGoldenBondInspectionMapper.test.ts"
+}
+```
+
+Then:
+- Any file containing `TEMPLATE_MAPPER.ts` will be renamed to `EsiToJaasGoldenBondInspectionMapper.ts`
+- Any file containing `TEMPLATE_MAPPER_TEST.ts` will be renamed to `EsiToJaasGoldenBondInspectionMapper.test.ts`
+
+This feature is useful when working with template files that need to be renamed according to specific project naming conventions. You can enable or disable this feature using the checkbox in the Directory Settings section.
+
+#### Example
+
+See the `example/file-renaming-example.json` file for a complete example of how to use the file renaming feature.
+
 ## Troubleshooting
 
 - **Git Errors**: Check that your Git directory is correctly configured and that you have the necessary permissions.

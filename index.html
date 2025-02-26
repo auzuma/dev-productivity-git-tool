@@ -44,6 +44,17 @@
               <button id="selectOutputDir">Select Folder</button>
             </div>
           </div>
+          
+          <div class="form-group">
+            <div class="checkbox-container">
+              <input type="checkbox" id="enableFileRenaming" checked>
+              <label for="enableFileRenaming">Enable file renaming with $$FILE_ prefix in JSON config</label>
+            </div>
+            <div class="help-text">
+              When enabled, keys in JSON config starting with $$FILE_ will be used to rename files.
+              Example: "$$FILE_TEMPLATE_MAPPER.ts": "CustomMapper.ts" will rename all files containing "TEMPLATE_MAPPER.ts" to "CustomMapper.ts"
+            </div>
+          </div>
         </div>
         
         <div class="section">

@@ -1,0 +1,15 @@
+{
+  "projectName": "EsiToJaasGoldenBondInspection",
+  "author": "Your Name",
+  "date": "2025-02-26",
+  "description": "Example configuration demonstrating file renaming feature",
+  
+  "$$FILE_TEMPLATE_MAPPER.ts": "EsiToJaasGoldenBondInspectionMapper.ts",
+  "$$FILE_TEMPLATE_MAPPER_TEST.ts": "EsiToJaasGoldenBondInspectionMapper.test.ts",
+  "$$FILE_template-component.tsx": "golden-bond-inspection.tsx",
+  "$$FILE_template-styles.css": "golden-bond-inspection-styles.css",
+  
+  "componentName": "GoldenBondInspection",
+  "apiEndpoint": "/api/v1/golden-bond-inspection",
+  "templateVariable": "This will be replaced in template content"
+}
