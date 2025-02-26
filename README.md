@@ -9,6 +9,7 @@ A cross-platform desktop application to automate Git workflows with template-bas
 - Automatic Git operations (checkout, branch creation, commits)
 - Prepares Pull Request URLs that open directly in your browser
 - Cross-platform support (Windows, macOS, Linux)
+- File renaming based on JSON configuration rules
 
 ## Getting Started
 
@@ -97,6 +98,40 @@ Files with names starting with `file_` can have placeholders in their names that
 - Template file: `file_report_{{ month }}.md`
 - JSON: `{ "month": "January" }`
 - Output file: `file_report_January.md`
+
+## Template Processing
+
+The tool processes template files by replacing placeholders with values from your JSON configuration.
+
+### Placeholder Format
+
+Placeholders in template files should use the format `{{ key }}`. For example:
+
+```
+Hello, {{ name }}!
+```
+
+If your JSON contains `{"name": "World"}`, this will be processed to `Hello, World!`.
+
+### File Renaming
+
+You can also rename files during the template processing by enabling the "File Renaming" option and adding special keys to your JSON configuration:
+
+1. Keys that start with `$$FILE_` are treated as file renaming rules
+2. The pattern after `$$FILE_` will be matched in filenames and replaced with the corresponding value
+
+Example JSON configuration:
+```json
+{
+  "name": "MyProject",
+  "$$FILE_temp": "myproject",
+  "$$FILE_placeholder": "custom"
+}
+```
+
+This would rename files like:
+- `temp_config.js` → `myproject_config.js`
+- `placeholder_utils.js` → `custom_utils.js`
 
 ## Troubleshooting
 

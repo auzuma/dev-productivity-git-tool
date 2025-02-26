@@ -10,9 +10,10 @@ const { glob } = require('glob');
  * @param {string} outputDir - Target directory for processed files
  * @param {Object} jsonConfig - JSON configuration with values to replace placeholders
  * @param {Function} logger - Function to log messages during processing
+ * @param {boolean} enableFileRenaming - Whether to enable file renaming based on JSON config
  * @returns {Promise<void>}
  */
-async function processTemplates(templateDir, outputDir, jsonConfig, logger) {
+async function processTemplates(templateDir, outputDir, jsonConfig, logger, enableFileRenaming = false) {
   // Make sure output directory exists
   await fs.ensureDir(outputDir);
   
@@ -65,6 +66,85 @@ async function processTemplates(templateDir, outputDir, jsonConfig, logger) {
   }
   
   logger('Template processing complete');
+  
+  // If file renaming is enabled, apply the renaming rules
+  if (enableFileRenaming) {
+    logger('Applying file renaming rules from JSON configuration...');
+    await renameFilesInDirectory(outputDir, jsonConfig, logger);
+  }
+}
+
+/**
+ * Rename files in a directory based on rules in the JSON configuration
+ * 
+ * @param {string} directory - Directory containing files to rename
+ * @param {Object} jsonConfig - JSON configuration with renaming rules
+ * @param {Function} logger - Function to log messages during processing
+ * @returns {Promise<void>}
+ */
+async function renameFilesInDirectory(directory, jsonConfig, logger) {
+  // Get all files recursively from the directory
+  const files = await glob('**/*', { cwd: directory, nodir: true });
+  
+  logger(`Checking ${files.length} files for renaming rules`);
+  
+  // Extract file renaming rules from JSON config (keys starting with $$FILE_)
+  const renameRules = Object.entries(jsonConfig)
+    .filter(([key]) => key.startsWith('$$FILE_'))
+    .map(([key, value]) => ({
+      pattern: key.replace('$$FILE_', ''),
+      replacement: value
+    }));
+  
+  if (renameRules.length === 0) {
+    logger('No file renaming rules found in configuration');
+    return;
+  }
+  
+  logger(`Found ${renameRules.length} file renaming rules`);
+  
+  // Process each file for renaming
+  let renamedCount = 0;
+  for (const file of files) {
+    const filePath = path.join(directory, file);
+    const newFilePath = applyFileRenaming(filePath, renameRules, directory);
+    
+    if (newFilePath !== filePath) {
+      // Ensure target directory exists
+      await fs.ensureDir(path.dirname(newFilePath));
+      
+      // Rename the file
+      await fs.rename(filePath, newFilePath);
+      logger(`Renamed: ${file} → ${path.relative(directory, newFilePath)}`);
+      renamedCount++;
+    }
+  }
+  
+  logger(`Renamed ${renamedCount} files based on configuration rules`);
+}
+
+/**
+ * Apply file renaming rules to a file path
+ * 
+ * @param {string} filePath - Original file path
+ * @param {Array} rules - Array of renaming rules with pattern and replacement
+ * @param {string} baseDir - Base directory for relative path calculation
+ * @returns {string} - New file path after applying rules
+ */
+function applyFileRenaming(filePath, rules, baseDir) {
+  let fileName = path.basename(filePath);
+  let dirName = path.dirname(filePath);
+  
+  // Apply each rule to the filename
+  for (const rule of rules) {
+    if (fileName.includes(rule.pattern)) {
+      fileName = fileName.replace(rule.pattern, rule.replacement);
+    }
+  }
+  
+  // Return the new path (unchanged if no rules matched)
+  const newPath = path.join(dirName, fileName);
+  return newPath;
 }
 
 /**
@@ -88,5 +168,7 @@ function processPlaceholders(text, jsonConfig) {
 
 module.exports = {
   processTemplates,
-  processPlaceholders
+  processPlaceholders,
+  renameFilesInDirectory,
+  applyFileRenaming
 };

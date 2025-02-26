@@ -201,12 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
       newBranch: document.getElementById('newBranch').value,
       commitMessage: document.getElementById('commitMessage').value,
       prTargetBranch: document.getElementById('prTargetBranch').value,
-      jsonConfig: jsonEditor.getValue()
+      jsonConfig: jsonEditor.getValue(),
+      enableFileRenaming: document.getElementById('enableFileRenaming').checked
     };
     
     try {
       // Call the main process to process templates and run Git commands
-      const result = await window.electronAPI.processTemplates(config);
+      const result = await window.electronAPI.generateAndPR(config);
       
       // Handle the result
       if (result.success) {

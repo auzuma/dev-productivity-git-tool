@@ -67,6 +67,16 @@
             <label for="prTargetBranch">PR Target Branch:</label>
             <input type="text" id="prTargetBranch" value="development" placeholder="e.g., development">
           </div>
+          
+          <div class="form-group">
+            <div class="checkbox-container">
+              <input type="checkbox" id="enableFileRenaming">
+              <label for="enableFileRenaming">Enable File Renaming</label>
+              <div class="help-text">
+                Use $$FILE_pattern keys in JSON to configure file renaming rules
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="section actions">

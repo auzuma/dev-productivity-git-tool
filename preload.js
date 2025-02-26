@@ -6,7 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectDirectory: (title) => ipcRenderer.invoke('select-directory', title),
   
   // Template processing and Git operations
-  processTemplates: (config) => ipcRenderer.invoke('process-templates', config),
+  generateAndPR: (config) => ipcRenderer.invoke('generate-and-pr', config),
   
   // Open URL in default browser
   openUrl: (url) => ipcRenderer.invoke('open-url', url),

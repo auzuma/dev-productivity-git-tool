@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const simpleGit = require('simple-git');
 
 // Import utility modules
-const { processTemplates } = require('./utils/templateParser');
+const { processTemplates, renameFilesInDirectory } = require('./utils/templateParser');
 const GitCommands = require('./utils/gitCommands');
 const PRCreator = require('./utils/prCreation');
 
@@ -73,20 +73,22 @@ ipcMain.handle('open-url', async (event, url) => {
 });
 
 // Handle template processing and Git operations
-ipcMain.handle('process-templates', async (event, config) => {
+ipcMain.handle('generate-and-pr', async (event, {
+  gitProjectDir,
+  templateDir,
+  outputDir,
+  jsonConfig,
+  currentBranch,
+  newBranch,
+  commitMessage,
+  prTargetBranch,
+  enableFileRenaming
+}) => {
   try {
-    const { 
-      gitProjectDir, 
-      templateDir, 
-      outputDir, 
-      currentBranch, 
-      newBranch, 
-      commitMessage, 
-      prTargetBranch, 
-      jsonConfig 
-    } = config;
+    // Store log output for potential error reporting
+    const logOutput = [];
     
-    let logOutput = [];
+    // Helper function to log messages to the renderer
     const addLog = (message) => {
       logOutput.push(message);
       event.sender.send('log-message', message);
@@ -108,7 +110,7 @@ ipcMain.handle('process-templates', async (event, config) => {
     
     // 3. Process templates
     addLog('Processing templates...');
-    await processTemplates(templateDir, outputDir, JSON.parse(jsonConfig), addLog);
+    await processTemplates(templateDir, outputDir, JSON.parse(jsonConfig), addLog, enableFileRenaming);
     
     // 4. Git operations - add, commit, push
     addLog('Staging changes...');
@@ -145,7 +147,7 @@ ipcMain.handle('process-templates', async (event, config) => {
     
     return { success: true, logs: logOutput };
   } catch (error) {
-    console.error('Error in process-templates:', error);
+    console.error('Error in generate-and-pr:', error);
     event.sender.send('log-message', `Error: ${error.message}`);
     return { success: false, error: error.message };
   }

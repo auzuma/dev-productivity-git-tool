@@ -60,6 +60,12 @@ h2 {
   margin-bottom: 15px;
 }
 
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
 label {
   display: block;
   margin-bottom: 5px;
@@ -166,4 +172,27 @@ button:hover {
 
 .open-pr-btn:active {
   background-color: #219653;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.checkbox-container label {
+  display: inline;
+  margin-bottom: 0;
+}
+
+.help-text {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
+  margin-left: 24px;
+  width: 100%;
 }
