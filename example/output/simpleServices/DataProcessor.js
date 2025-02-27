@@ -1,18 +1,20 @@
+/* This is a simple service */
+
 /**
- * {{ componentName }} {{ componentType }}
- * {{ componentDescription }}
+ * DataProcessor Service
+ * Service for processing data streams
  */
 
-class {{ componentName }}{{ componentType }} {
+class DataProcessorService {
   constructor(options = {}) {
-    this.name = '{{ componentName }}';
-    this.type = '{{ componentType }}';
+    this.name = 'DataProcessor';
+    this.type = 'Service';
     this.options = options;
   }
 
   initialize() {
     console.log(`Initializing ${this.name} ${this.type}`);
-    {{ initializeCode }}
+    this.cache = new Map();
   }
 
   process(data) {
@@ -24,4 +26,4 @@ class {{ componentName }}{{ componentType }} {
   }
 }
 
-module.exports = {{ componentName }}{{ componentType }};
+module.exports = DataProcessorService;

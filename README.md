@@ -9,7 +9,7 @@ A cross-platform desktop application to automate Git workflows with template-bas
 - Automatic Git operations (checkout, branch creation, commits)
 - Prepares Pull Request URLs that open directly in your browser
 - Cross-platform support (Windows, macOS, Linux)
-- File renaming based on JSON configuration rules
+- Intelligent file renaming based on JSON configuration rules, working across nested directories
 
 ## Getting Started
 
@@ -117,21 +117,27 @@ If your JSON contains `{"name": "World"}`, this will be processed to `Hello, Wor
 
 You can also rename files during the template processing by enabling the "File Renaming" option and adding special keys to your JSON configuration:
 
-1. Keys that start with `$$FILE_` are treated as file renaming rules
-2. The pattern after `$$FILE_` will be matched in filenames and replaced with the corresponding value
+1. Keys that start with `$$FILE_` or `$$file_` are treated as file renaming rules (case-insensitive)
+2. The pattern after `$$FILE_` will be matched against file basenames (regardless of directory path) and replaced with the corresponding value
+3. The same renaming rule applies to files with identical names across different directories
 
 Example JSON configuration:
 ```json
 {
   "name": "MyProject",
   "$$FILE_temp": "myproject",
-  "$$FILE_placeholder": "custom"
+  "$$file_placeholder": "custom",
+  "$$FILE_foo_service.js": "DataProcessor.js"
 }
 ```
 
 This would rename files like:
 - `temp_config.js` → `myproject_config.js`
 - `placeholder_utils.js` → `custom_utils.js`
+- `services/foo_service.js` → `services/DataProcessor.js`
+- `premium/foo_service.js` → `premium/DataProcessor.js`
+
+Note that both `foo_service.js` files are renamed to `DataProcessor.js` while retaining their original directory paths, without requiring separate rules for each path.
 
 ## Troubleshooting
 

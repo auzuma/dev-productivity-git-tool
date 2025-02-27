@@ -101,9 +101,9 @@ async function renameFilesInDirectory(directory, jsonConfig, logger) {
   
   // Extract file renaming rules from JSON config (keys starting with $$FILE_)
   const renameRules = Object.entries(jsonConfig)
-    .filter(([key]) => key.startsWith('$$FILE_'))
+    .filter(([key]) => key.toUpperCase().startsWith('$$FILE_'))
     .map(([key, value]) => ({
-      pattern: key.replace('$$FILE_', ''),
+      pattern: key.replace('$$FILE_', '').replace('$$file_', ''),
       replacement: value
     }));
   
@@ -148,7 +148,7 @@ function applyFileRenaming(filePath, rules, baseDir) {
   
   // Apply each rule to the filename
   for (const rule of rules) {
-    // Exact match for filename instead of just includes
+    // Match any file with the same basename regardless of path
     if (fileName === rule.pattern) {
       fileName = rule.replacement;
       break; // Stop after first match to prevent multiple rules applying
