@@ -23,5 +23,6 @@
   "keywords": "\"data-processing\", \"service\", \"node\"",
   "author": "Your Name",
   "license": "MIT",
-  "$$FILE_foo_Service.js": "DataProcessor.js"
+
+  "$$file_foo_service.js": "DataProcessor.js"
 }

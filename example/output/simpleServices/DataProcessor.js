@@ -1,3 +1,5 @@
+/* This is a simple service */
+
 /**
  * DataProcessor Service
  * Service for processing data streams
