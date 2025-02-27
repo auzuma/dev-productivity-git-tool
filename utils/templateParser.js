@@ -26,9 +26,9 @@ async function processTemplates(templateDir, outputDir, jsonConfig, logger, enab
   let renameRules = [];
   if (enableFileRenaming) {
     renameRules = Object.entries(jsonConfig)
-      .filter(([key]) => key.startsWith('$$FILE_'))
+      .filter(([key]) => key.toUpperCase().startsWith('$$FILE_'))
       .map(([key, value]) => ({
-        pattern: key.replace('$$FILE_', ''),
+        pattern: key.replace('$$FILE_', '').replace('$$file_', ''),
         replacement: value
       }));
       
